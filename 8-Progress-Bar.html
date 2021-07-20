@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <title>Show Progress Bar</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
+    <script type="text/babel">
+      /*
+         1. You are provided with a list of tasks information
+         2. Your task is to allow the user to mark a task as complete
+         3. A task is said to be completed, when he selects the checkbox associated with task
+         4. Also when a task is complete, strike through the text
+       */
+
+      const tasks = [
+        { id: 1, title: 'get the website live', completed: true },
+        { id: 2, title: 'work on user validation', completed: false },
+        { id: 3, title: 'Automate the deployment process', completed: false },
+      ];
+
+      const { useState } = React;
+
+      function TaskInfo(props) {
+        const [totalTasks, setTotalTasks] = useState(tasks);
+        //const [progressBar, setProgressBar] = useState(0);
+
+        const handleChange = (id) => {
+          const data = totalTasks.map((task) => {
+            return task.id === id ? { ...task, ...{ completed: !task.completed } } : { ...task };
+          });
+          const progressBarPercentage = data.filter((ele) => {
+            const { completed } = ele;
+            return completed;
+          });
+          //   setProgressBar((progressBarPercentage.length / totalTasks.length) * 100);
+          //   console.log((progressBarPercentage.length / totalTasks.length) * 100);
+          setTotalTasks(data);
+        };
+        return (
+          <div className='container'>
+            <h1>Listing Tasks - {totalTasks.length}</h1>
+            <progress id='file' value={(totalTasks.filter((ele) => ele.completed).length / totalTasks.length) * 100} max={100}></progress>
+            <br />
+            <table className='table  table-bordered table-hover'>
+              <tbody>
+                {totalTasks.map((emp, idx) => {
+                  const { id, title, completed } = emp;
+                  return (
+                    <tr key={id}>
+                      <td>
+                        <input type='checkbox' id={id} checked={completed} onChange={() => handleChange(id)} />
+                      </td>
+                      <td>
+                        <label htmlFor={id}>
+                          {completed ? (
+                            <p id={id}>
+                              <del>{title}</del>
+                            </p>
+                          ) : (
+                            <p>{title}</p>
+                          )}
+                        </label>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+      const rootHandle = document.querySelector('#root');
+
+      ReactDOM.render(<TaskInfo />, rootHandle);
+    </script>
+  </body>
+</html>

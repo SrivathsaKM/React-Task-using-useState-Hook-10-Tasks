@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <title>Pick Random users</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      let namesArray = JSON.parse(localStorage.getItem('names')) || [];
+      function Users(props) {
+        const [users, setUsers] = useState();
+        const [newUser, setNewUser] = useState('');
+        const [status, setStaus] = useState(false);
+        const [user,  ] = useState('');
+        const [flag, setFlag] = useState('');
+
+        const handleUserChange = (e) => {
+          const attr = e.target.value;
+          setUsers(attr);
+          //console.log(attr);
+        };
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (users) {
+            setStaus(true);
+            setFlag(!flag);
+            const data = users.split(', ');
+            setNewUser(data);
+            setUsers(' ');
+          } else {
+            alert('textbox cant be empty');
+          }
+        };
+
+        const handleClick = () => {
+          //alert('hi');
+          const randomUser = Math.floor(Math.random() * newUser.length);
+          // console.log(randomUser);
+          const data = newUser[randomUser];
+          // console.log(data);
+
+          setUser(data);
+
+          const userName = newUser.filter((ele) => {
+            return ele != data;
+          });
+          //console.log(user);
+
+          namesArray.push(
+            newUser.filter((ele) => {
+              return ele === data;
+            })
+          );
+          localStorage.setItem('names', JSON.stringify(namesArray));
+
+          setNewUser(userName);
+          if (newUser.length === 0) {
+            setStaus(false);
+            setFlag('No more names to remove');
+          }
+        };
+
+        return (
+          <div className='container'>
+            <form onSubmit={handleSubmit}>
+              <textarea value={users} onChange={handleUserChange} placeholder='Dont enter duplicate names'></textarea>
+              <br />
+              <button type='submit'>Submit</button>
+            </form>
+
+            <h2>Old Names</h2>
+            <ul>
+              {namesArray.flat().map((ele, idx) => {
+                return <li key={idx}>{ele}</li>;
+              })}
+            </ul>
+            {status && (
+              <div>
+                <h1>{status && (user ? `${user} is removed` : 'Please click the button')}</h1>
+                <h2>New Names</h2>
+                <ul>
+                  {newUser.map((ele, idx) => {
+                    return <li key={idx}>{ele}</li>;
+                  })}
+                </ul>
+                <button onClick={handleClick}>Draw</button>
+              </div>
+            )}
+            <h1>{flag}</h1>
+          </div>
+        );
+      }
+      const rootHandle = document.querySelector('#root');
+
+      ReactDOM.render(<Users />, rootHandle);
+    </script>
+  </body>
+</html>

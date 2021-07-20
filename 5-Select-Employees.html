@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <title>Select Employees</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
+    <script type="text/babel">
+      /*
+              1. You are provided with an array of employees info
+              2. Display them in a table format
+              3. Next to each employee, provide a checkbox input
+              4. When we click on the checkbox associated with an employee, show them as the selected employee
+            */
+      const { useState } = React;
+
+      const users = [
+        { id: 1, name: 'emp11', email: 'emp11@gmail.com', selected: false },
+        { id: 2, name: 'emp12', email: 'emp12@gmail.com', selected: false },
+        { id: 3, name: 'emp13', email: 'emp13@gmail.com', selected: false },
+        { id: 4, name: 'emp14', email: 'emp14@gmail.com', selected: false },
+      ];
+
+      function EmployeeInfo() {
+        const [empInfo, setEmpInfo] = useState(users);
+
+        const handleChange = (id) => {
+          // alert(id);
+          const data = empInfo.map((emp) => {
+            return emp.id === id ? { ...emp, ...{ selected: !emp.selected } } : { ...emp };
+          });
+          setEmpInfo(data);
+        };
+
+        return (
+          <div className='container'>
+            <h2>Listing Employees - {empInfo.length}</h2>
+            <table className='table  table-bordered table-hover'>
+              <thead>
+                <tr>
+                  <th scope='col'>#</th>
+                  <th scope='col'>Name</th>
+                  <th scope='col'>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {empInfo.map((info) => {
+                  const { id, name, selected } = info;
+                  return (
+                    <tr key={id}>
+                      <td>{id}</td>
+                      <td>{name}</td>
+                      <td>
+                        <input type='checkbox' checked={selected} onChange={() => handleChange(id)} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <h2>Selected Employees</h2>
+            <ul>
+              {empInfo.map((emp) => {
+                const { id, name, selected } = emp;
+                return <p key={id}>{selected && <li>{name}</li>}</p>;
+              })}
+            </ul>
+          </div>
+        );
+      }
+      const rootHandle = document.querySelector('#root');
+
+      ReactDOM.render(<EmployeeInfo />, rootHandle);
+    </script>
+  </body>
+</html>

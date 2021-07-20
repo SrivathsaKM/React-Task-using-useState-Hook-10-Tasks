@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <title>Display Employees</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
+    <script type="text/babel">
+      /*
+        1.  You are provided with an array of Employees data
+        2.  User should be allowed to view the data either in a list or a table format
+        3.  By default the data is displayed as a list
+        4.  Your task is to create multiple components to achieve the desired output
+        5.  Component List is as follows
+                1. App
+                2. EmployeeContainer
+                3. EmployeeList
+                4. EmployeeTable
+      */
+      const { useState } = React;
+      const employees = [
+        { id: 1, name: 'emp1', email: 'emp1@gmail.com' },
+        { id: 2, name: 'emp2', email: 'emp2@gmail.com' },
+        { id: 3, name: 'emp3', email: 'emp3@gmail.com' },
+        { id: 4, name: 'emp4', email: 'emp4@gmail.com' },
+      ];
+      function App(props) {
+        const [employee, setEmployee] = useState(employees);
+
+        return (
+          <div className='container'>
+            <EmployeeContainer employee={employee} />
+          </div>
+        );
+      }
+
+      function EmployeeContainer(props) {
+        const { employee } = props;
+        const [displayView, setDisplayView] = useState('List');
+        const [status, setStatus] = useState(false);
+
+        const handleChange = (e) => {
+          const attr = e.target.value;
+          setDisplayView(attr);
+          if (attr === 'Table') {
+            setStatus(true);
+          } else {
+            setStatus(false);
+          }
+        };
+
+        return (
+          <div>
+            <input type='radio' value='List' checked={displayView == 'List'} onChange={handleChange} /> List &ensp;
+            <input type='radio' value='Table' checked={displayView == 'Table'} onChange={handleChange} /> Table <br />
+            <h2>Listing Employees - {employee.length}</h2>
+            {status ? <EmployeeTable employee={props.employee} /> : <EmployeeList employee={props.employee} />}
+          </div>
+        );
+      }
+
+      function EmployeeList(props) {
+        const { employee } = props;
+        return (
+          <div>
+            <ul>
+              {employee.map((emp) => {
+                const { id, name, email } = emp;
+                return (
+                  <li key={id}>
+                    {name} - {email}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      }
+
+      function EmployeeTable(props) {
+        //console.log(props);
+        const { employee } = props;
+        return (
+          <div>
+            <table className='table  table-bordered table-hover'>
+              <thead>
+                <tr>
+                  <th scope='col'>#</th>
+                  <th scope='col'>Name</th>
+                  <th scope='col'>Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employee.map((emp, idx) => {
+                  const { id, name, email } = emp;
+                  return (
+                    <tr key={id}>
+                      <td>{id}</td>
+                      <td>{name}</td>
+                      <td>{email}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+      const rootHandle = document.querySelector('#root');
+
+      ReactDOM.render(<App />, rootHandle);
+    </script>
+  </body>
+</html>

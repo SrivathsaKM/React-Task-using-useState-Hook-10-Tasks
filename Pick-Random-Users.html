@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <title>Pick Random users</title>
+  </head>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+  </style>
+  <body>
+    <div id="root" style="padding: 0; margin: 0; box-sizing: border-box"></div>
+
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+    <script src="https://unpkg.com/@material-ui/core@latest/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/@material-ui/core@latest/umd/material-ui.production.min.js"></script>
+    <script type="text/babel">
+      const { useState } = React;
+      const { makeStyles, AppBar, Toolbar, Typography, Button, Grid, Paper, Card, CardActionArea, CardActions, CardContent, CardMedia, TextField, Icon } = MaterialUI;
+
+      const rootHandle = document.querySelector('#root');
+
+      const useStyles = makeStyles((theme) => ({
+        root: {
+          maxWidth: 345,
+          padding: theme.spacing(0),
+          display: 'flex',
+          flexWrap: 'wrap',
+        },
+        title: {
+          flexGrow: 1,
+          textAlign: 'center',
+        },
+        textbox: {
+          marginLeft: theme.spacing(1),
+          marginRight: theme.spacing(1),
+          width: `95%`,
+        },
+        button: {
+          marginLeft: theme.spacing(4),
+        },
+        buttonDraw: {
+          marginLeft: theme.spacing(1),
+          marginTop: theme.spacing(1),
+          marginBottom: theme.spacing(10),
+        },
+      }));
+
+      function App() {
+        const classes = useStyles();
+        const [inputText, setInputText] = useState('');
+        const [newArr, setNewArr] = useState(JSON.parse(localStorage.getItem('names')) || []);
+        const [removedName, setRemovedName] = useState([]);
+        const [removeNameFlag, setRemoveNameFlag] = useState(false);
+        const [selectedNamesList, setSelectedNamesList] = useState([] || JSON.parse(localStorage.getItem('selectedNames')));
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (inputText) {
+            const formData = inputText.split(', ');
+
+            const result = formData.map((ele, idx) => {
+              return { id: Math.floor(Math.random() * 1000) + new Date().getTime().toString(), name: ele };
+            });
+
+            const currentNames = [...result, ...newArr];
+            setNewArr(currentNames);
+            //console.log(currentNames);
+
+            localStorage.setItem('names', JSON.stringify(currentNames));
+            setNewArr(currentNames);
+            setRemoveNameFlag(false);
+            setInputText('');
+          } else {
+            alert('Please Enter Names');
+          }
+        };
+
+        const handleBtnDrawClick = () => {
+          const randomNumber = Math.floor(Math.random() * newArr.length);
+
+          const removeName = newArr[randomNumber];
+          // console.log(removeName);
+          const filteredData = newArr.filter((names) => {
+            return names.id != removeName.id;
+          });
+          //console.log(filteredData);
+          localStorage.setItem('names', JSON.stringify(filteredData));
+          setNewArr(filteredData);
+
+          DisplaySlectedName(removeName);
+          DisplayAllSelectedNames(removeName);
+        };
+
+        //  Displaying random selected name
+        const DisplaySlectedName = (removeName) => {
+          setRemovedName(newArr.filter((names) => names.id === removeName.id).map((name) => name.name));
+          setRemoveNameFlag(true);
+        };
+
+        //Displaying all the list of names selected
+        const DisplayAllSelectedNames = (removeName) => {
+          const allSelectedNamesList = [...newArr.filter((names) => names.id === removeName.id), ...selectedNamesList];
+          setSelectedNamesList(allSelectedNamesList);
+          localStorage.setItem('selectedNames', JSON.stringify(allSelectedNamesList));
+        };
+
+        const handleDeleteButton = () => {
+          const confirmDeleteAllNames = confirm('Confirm Delete ?');
+          if (confirmDeleteAllNames) {
+            setSelectedNamesList([]);
+          }
+        };
+
+        return (
+          <React.Fragment>
+            <Grid container spacing={0}>
+              <Grid item xs={2} style={{ backgroundColor: `rgba(50, 115, 220, 0.3)` }}>
+                <LeftMenu classes={classes} newArr={newArr} removedName={removedName} removeNameFlag={removeNameFlag} />
+                {newArr.length > 0 && <ButtonDraw classes={classes} handleBtnDrawClick={handleBtnDrawClick} />}
+              </Grid>
+
+              <Grid item xs={8}>
+                <Header classes={classes} />
+                <FormData classes={classes} handleSubmit={handleSubmit} inputText={inputText} setInputText={setInputText} />
+              </Grid>
+
+              <Grid item xs={2} style={{ backgroundColor: `hsla(14, 100%, 53%, 0.6)` }}>
+                <RightMenu classes={classes} selectedNamesList={selectedNamesList} status={status} />
+                <ButtonDelete classes={classes} handleDeleteButton={handleDeleteButton} selectedNamesList={selectedNamesList} />
+              </Grid>
+            </Grid>
+          </React.Fragment>
+        );
+      }
+
+      function Header(props) {
+        const { classes } = props;
+        return (
+          <React.Fragment>
+            <AppBar position='static'>
+              <Toolbar>
+                <Typography variant='h6' className={classes.title}>
+                  Lucky Draw
+                </Typography>
+              </Toolbar>
+            </AppBar>
+          </React.Fragment>
+        );
+      }
+
+      function FormData(props) {
+        const { classes, handleSubmit, inputText, setInputText } = props;
+        //console.log(props);
+
+        return (
+          <React.Fragment>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                className={classes.textbox}
+                id='outlined-full-width'
+                label='Enter Names'
+                style={{ marginTop: 20, marginLeft: 30 }}
+                placeholder='Warning! Dont use Duplicate Names'
+                margin='normal'
+                value={inputText}
+                onChange={(e) => {
+                  setInputText(e.target.value);
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant='outlined'
+              />
+              <ButtonArea classes={classes} />
+            </form>
+          </React.Fragment>
+        );
+      }
+      function ButtonArea(props) {
+        //console.log(props);
+        const { classes } = props;
+        return (
+          <Button variant='contained' color='primary' className={classes.button} endIcon={<Icon>send</Icon>} type='submit'>
+            submit
+          </Button>
+        );
+      }
+      function LeftMenu(props) {
+        // console.log(currentNames);
+        //console.log(props);
+        const { classes, nameList, newArr, removedName, removeNameFlag } = props;
+        return (
+          <Card className={classes.root} style={{ backgroundColor: `rgba(50, 115, 220, 0.3)` }}>
+            <CardActionArea>
+              <CardContent style={{ height: 'auto' }}>
+                <Typography gutterBottom variant='h7' component='h2' color='textSecondary' style={{ marginBottom: '25px' }}>
+                  Listing All Names - ({newArr.length > 0 ? newArr.length : 0})
+                </Typography>
+
+                <Typography gutterBottom variant='h8' component='h3' color='textSecondary' style={{ marginBottom: '15px', color: '#101E2A' }}>
+                  {removeNameFlag && `${removedName}  is selected`}
+                </Typography>
+                <FixedSizeList height={400} width={300} itemSize={46} itemCount={200}>
+                  {renderRow} 
+                </FixedSizeList>
+                <Typography variant='body2' color='textSecondary' component='ul'>
+                  {newArr.length > 0 && newArr.map((names) => <li key={names.id}>{names.name}</li>)}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        );
+      }
+
+      function ButtonDraw(props) {
+        // console.log(props);
+        const { classes, handleBtnDrawClick } = props;
+        return (
+          <Button variant='contained' color='secondary' style={{ backgroundColor: 'green' }} className={classes.buttonDraw} endIcon={<Icon>check</Icon>} type='button' onClick={handleBtnDrawClick}>
+            Select
+          </Button>
+        );
+      }
+
+      function RightMenu(props) {
+        const { classes, selectedNamesList, status } = props;
+        //console.log(selectedNamesList);
+        return (
+          <Card className={classes.root} style={{ backgroundColor: `hsla(14, 100%, 53%, 0.6)` }}>
+            <CardActionArea>
+              <CardContent style={{ height: 'auto' }}>
+                <Typography gutterBottom variant='h7' component='h2' color='textSecondary'>
+                  Selected Names List - ({selectedNamesList.length})
+                </Typography>
+                <Typography variant='body2' color='textSecondary' component='ul'>
+                  {selectedNamesList.length > 0 && selectedNamesList.map((names) => <li key={names.id}>{names.name}</li>)}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        );
+      }
+
+      function ButtonDelete(props) {
+        const { classes, handleDeleteButton, selectedNamesList } = props;
+        //console.log(selectedNamesList.length);
+        return (
+          <div>
+            {selectedNamesList.length > 0 && (
+              <Button variant='contained' color='secondary' className={classes.buttonDraw} endIcon={<Icon>delete</Icon>} type='button' onClick={handleDeleteButton}>
+                Delete
+              </Button>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, rootHandle);
+    </script>
+  </body>
+</html>

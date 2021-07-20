@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <title>Pick Random users</title>
+  </head>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+  </style>
+  <body>
+    <div id="root" style="padding: 0; margin: 0; box-sizing: border-box"></div>
+
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+    <script src="https://unpkg.com/@material-ui/core@latest/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/@material-ui/core@latest/umd/material-ui.production.min.js"></script>
+    <script type="text/babel">
+      const { useState } = React;
+      const { makeStyles, AppBar, Toolbar, Typography, Button, Grid, Paper, Card, CardActionArea, CardActions, CardContent, CardMedia, TextField, Icon } = MaterialUI;
+
+      const rootHandle = document.querySelector('#root');
+
+      const useStyles = makeStyles((theme) => ({
+        root: {
+          flexGrow: 1,
+          maxWidth: 345,
+          padding: theme.spacing(0),
+          display: 'flex',
+          flexWrap: 'wrap',
+        },
+        title: {
+          flexGrow: 1,
+          textAlign: 'center',
+        },
+        textbox: {
+          marginLeft: theme.spacing(1),
+          marginRight: theme.spacing(1),
+          width: `95%`,
+        },
+        button: {
+          marginLeft: theme.spacing(4),
+        },
+        buttonDraw: {
+          marginLeft: theme.spacing(1),
+          marginTop: theme.spacing(1),
+        },
+      }));
+      let currentNames = JSON.parse(localStorage.getItem('names')) || [];
+      function App() {
+        const classes = useStyles();
+        const [inputText, setInputText] = useState('');
+        const [filterResult, setFilterResult] = useState(currentNames);
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (inputText) {
+            const formData = inputText.split(', ');
+            //const data = formData.join(', ');
+            //const result = formData.fill().map((_) => formData.splice(0, 1));
+            console.log(formData);
+            const result = formData.map((ele, idx) => {
+              return { id: idx, name: ele };
+            });
+            console.log(result);
+
+            //const result = new Array(Math.ceil(formData.length / 1)).fill().map((_) => formData.splice(0, 1));
+            //const result = formData.map((_) => formData.splice(0, 1));
+            //currentNames.push(result);
+            localStorage.setItem('names', JSON.stringify(result));
+
+            setInputText('');
+
+            //console.log(formData);
+          } else {
+            alert('Please Enter Names');
+          }
+        };
+        const handleBtnDrawClick = () => {
+          const randomNumber = Math.floor(Math.random() * filterResult.length);
+
+          const removeName = filterResult[randomNumber];
+          //console.log(removeName);
+          const filteredData = filterResult.filter((names) => names != removeName);
+          //  console.log(filteredData);
+          localStorage.setItem('names', JSON.stringify(filteredData));
+          setFilterResult(filteredData);
+
+          currentNames = [];
+          if (filteredData.length === 0) {
+            window.location.reload();
+          }
+        };
+        return (
+          <React.Fragment>
+            <Grid container spacing={0}>
+              <Grid item xs={2} style={{ backgroundColor: `rgba(50, 115, 220, 0.3)` }}>
+                <SideMenu classes={classes} />
+                {filterResult.length > 0 ? <ButtonDraw classes={classes} handleBtnDrawClick={handleBtnDrawClick} /> : ''}
+              </Grid>
+
+              <Grid item xs={8}>
+                <Header classes={classes} />
+                <FormData classes={classes} handleSubmit={handleSubmit} inputText={inputText} setInputText={setInputText} />
+              </Grid>
+
+              <Grid item xs={2}>
+                <RightMenu classes={classes} />
+              </Grid>
+            </Grid>
+          </React.Fragment>
+        );
+      }
+
+      function Header(props) {
+        const { classes } = props;
+        return (
+          <React.Fragment>
+            <AppBar position='static'>
+              <Toolbar>
+                <Typography variant='h6' className={classes.title}>
+                  Lucky Draw
+                </Typography>
+              </Toolbar>
+            </AppBar>
+          </React.Fragment>
+        );
+      }
+
+      function FormData(props) {
+        const { classes, handleSubmit, inputText, setInputText } = props;
+        //console.log(props);
+
+        return (
+          <React.Fragment>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                className={classes.textbox}
+                id='outlined-full-width'
+                label='Enter Names'
+                style={{ marginTop: 20, marginLeft: 30 }}
+                placeholder='Warning! Dont use Duplicate Names'
+                margin='normal'
+                value={inputText}
+                onChange={(e) => {
+                  setInputText(e.target.value);
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant='outlined'
+              />
+              <ButtonArea classes={classes} />
+            </form>
+          </React.Fragment>
+        );
+      }
+      function ButtonArea(props) {
+        //console.log(props);
+        const { classes } = props;
+        return (
+          <Button variant='contained' color='primary' className={classes.button} endIcon={<Icon>send</Icon>} type='submit'>
+            submit
+          </Button>
+        );
+      }
+      // function SideMenu(props) {
+      //   //  console.log(props);
+      //   const { classes, nameList, currentNames } = props;
+      //   return (
+      //     <Card className={classes.root} style={{ backgroundColor: `rgba(50, 115, 220, 0.3)` }}>
+      //       <CardActionArea>
+      //         <CardContent style={{ height: 'auto' }}>
+      //           <Typography gutterBottom variant='h6' component='h2'>
+      //             Submitted Names - ({currentNames.length > 0 ? currentNames.flat().length : 0})
+      //           </Typography>
+      //           <ul>{currentNames.length > 0 && currentNames.flat().map((ele, idx) => <li key={idx}>{ele}</li>)}</ul>
+      //           <Typography variant='body2' color='textSecondary' component='p'></Typography>
+      //         </CardContent>
+      //       </CardActionArea>
+      //     </Card>
+      //   );
+      // }
+
+      function ButtonDraw(props) {
+        // console.log(props);
+        const { classes, handleBtnDrawClick } = props;
+        return (
+          <Button variant='contained' color='primary' className={classes.buttonDraw} endIcon={<Icon>send</Icon>} type='button' onClick={handleBtnDrawClick}>
+            Draw
+          </Button>
+        );
+      }
+
+      // function RightMenu(props) {
+      //   const { classes } = props;
+      //   return (
+      //     <Card className={classes.root} style={{ backgroundColor: `hsla(14, 100%, 53%, 0.6)` }}>
+      //       <CardActionArea>
+      //         <CardContent style={{ height: '90vh' }}>
+      //           <Typography gutterBottom variant='h5' component='h2'>
+      //             Lizard
+      //           </Typography>
+      //           <Typography variant='body2' color='textSecondary' component='p'>
+      //             Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging across all continents except Antarctica
+      //           </Typography>
+      //         </CardContent>
+      //       </CardActionArea>
+      //     </Card>
+      //   );
+      // }
+      ReactDOM.render(<App />, rootHandle);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phone Bill Payment</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
+    <script type="text/babel">
+      /*
+        1. Create a BillPayment Component
+        2. The component should render the radio buttons and an input field for the user to enter his mobile number
+        3. The radio buttons represet a service provider eg - vodafone, airtel and jio
+        4.The input field should have a placeholder present, letting the user know to enter his respective phone number
+        5. By default vodafone has to be selected in the radio button
+        6. When the user changes to his service provider, the placeholder should indicate the same
+        7. Example - if the user uses vodafone, then the placeholder text should be "enter your vodafone number", if the user is on jio, the placeholder text should be "enter your jio number"
+        8. The title also has to change accordingly
+      */
+      const rootHandle = document.querySelector('#root');
+      const { useState } = React;
+
+      function BillPayment() {
+        const [serviceProvider, setServiceProvider] = useState('Vodafone');
+
+        const handleChange = (e) => {
+          setServiceProvider(e.target.value);
+        };
+        return (
+          <div>
+            <h1>Pay bill for {serviceProvider}</h1>
+            <hr />
+            <input type="radio" name="serviceProvider" value="Vodafone" checked={serviceProvider === 'Vodafone'} onChange={handleChange} /> Vodafone <br />
+            <input type="radio" name="serviceProvider" value="Airtel" checked={serviceProvider === 'Airtel'} onChange={handleChange} /> Airtel <br />
+            <input type="radio" name="serviceProvider" value="Jio" checked={serviceProvider === 'Jio'} onChange={handleChange} /> Jio <br />
+            <input type="text" placeholder={`Enter your ${serviceProvider} Number`} />
+          </div>
+        );
+      }
+
+      ReactDOM.render(<BillPayment />, rootHandle);
+    </script>
+  </body>
+</html>
